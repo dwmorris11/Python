@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 # Replace RPG starter project with this code when new instructions are live
-
 def showInstructions():
   #print a main menu and the commands
   print('''
@@ -19,9 +18,19 @@ def showStatus():
   #print the current inventory
   print('Inventory : ' + str(inventory))
   #print an item if there is one
-  if "item" in rooms[currentRoom]:
-    print('You see a ' + rooms[currentRoom]['item'])
+  if "item" in rooms[currentRoom] and "inventory" in rooms[currentRoom]['item']:
+    print('You see a ' + rooms[currentRoom]['item']['inventory'])
+  elif "item" in rooms[currentRoom] and "trap" in rooms[currentRoom]['trap']:
+    print(f"You have been killed by {rooms[currentRoom]['trap']}")
+    exit(0)
   print("---------------------------")
+
+def addToInventory(item):
+  inventory += [item]
+  #display a helpful message
+  print(item + ' got!')
+  #delete the item from the room
+  del rooms[currentRoom]['item']['inventory']
 
 #an inventory, which is initially empty
 inventory = []
@@ -34,51 +43,51 @@ rooms = {
                   'south' : 'Kitchen',
                   'east'  : 'Dining Room',
                   'west'  : 'Stairs',
-                  'item'  : 'key',
+                  'item'  : {'inventory': 'key'},
                 },
             'Kitchen' : {
                   'north' : 'Hall',
-                  'item'  : 'monster',
+                  'item'  : {'trap': 'monster'},
                 },
             'Dining Room' : {
                   'west' : 'Hall',
                   'south': 'Garden',
-                  'item' : 'potion',
+                  'item' : {'inventory': 'potion'},
                   'north' : 'Pantry',
                },
             'Garden' : {
                   'north' : 'Dining Room',
-                  'item' : 'snake',
+                  'item' : {'trap': 'snake'},
                },
             'Pantry' : {
                   'south' : 'Dining Room',
-                  'item' : 'cookie',
-            },
+                  'item' : {'inventory': 'cookie'},
+               },
             'Stairs' : {
                   'up' : 'Upstairs Hall',
                 'down' : 'Hall',
-                'item' : 'creepy oil portrait',
-            },
+                'item' : {'inventory': 'creepy oil portrait'},
+               },
             'Upstairs Hall' : {
               'north' : 'Stairs',
               'west'  : 'Attic',
               'south' : 'Master Bedroom',
               'east'  : 'Guest Bedroom',
-              'item'  : 'urn',
+              'item'  : {'inventory': 'urn'},
             },
             'Attic': {
               'east' : 'Upstaris Hall',
-              'item' : 'ghost',
+              'item' : {'trap': 'ghost'},
             },
             'Master Bedroom': {
               'north' : 'Upstairs Hall',
-              'item' : 'gun'
+              'item' : {'inventory': 'gun'},
             },
             'Guest Bedroom' : {
               'west' : 'Upstairs Hall',
-              'item' : 'seductress',
+              'item' : {'trap' : 'seductress'},
             }
-         }
+        }
 
 #start the player in the Hall
 currentRoom = 'Hall'
@@ -117,11 +126,11 @@ while True:
     #if the room contains an item, and the item is the one they want to get
     if "item" in rooms[currentRoom] and len(move)>1 and move[1] in rooms[currentRoom]['item']: #added to fix bug in original if a noun is not given
       #add the item to their inventory
-      inventory += [move[1]]
-      #display a helpful message
-      print(move[1] + ' got!')
-      #delete the item from the room
-      del rooms[currentRoom]['item']
+      if(move[1].get('item').get('inventory')):  #item is an inventory item
+        addToInventory(move[1].get('item').get('inventory'))
+      elif(move[1].get('item').get('trap')):  #item is a trap
+        print(f"You were killed by {move[1].get('item').get('trap')}!!!")
+        exit(0)
     #otherwise, if the item isn't there to get
     else:
       if(len(move) <= 1):  #added to fix bug in orginal if a noun is not given
