@@ -20,20 +20,21 @@ def showStatus():
   #print an item if there is one
   if "item" in rooms[currentRoom] and "inventory" in rooms[currentRoom]['item']:
     print('You see a ' + rooms[currentRoom]['item']['inventory'])
-  elif "item" in rooms[currentRoom] and "trap" in rooms[currentRoom]['trap']:
-    print(f"You have been killed by {rooms[currentRoom]['trap']}")
-    exit(0)
+  elif "item" in rooms[currentRoom] and "trap" in rooms[currentRoom]['item']:
+      print(f"You have been killed by {rooms[currentRoom]['item']['trap']}")
+      exit(0)
   print("---------------------------")
 
+inventory= []
+
 def addToInventory(item):
+  global inventory
   inventory += [item]
   #display a helpful message
   print(item + ' got!')
   #delete the item from the room
   del rooms[currentRoom]['item']['inventory']
 
-#an inventory, which is initially empty
-inventory = []
 
 #a dictionary linking a room to other rooms
 ## A dictionary linking a room to other rooms
@@ -124,12 +125,13 @@ while True:
   #if they type 'get' first
   if move[0] == 'get':
     #if the room contains an item, and the item is the one they want to get
-    if "item" in rooms[currentRoom] and len(move)>1 and move[1] in rooms[currentRoom]['item']: #added to fix bug in original if a noun is not given
+    if "item" in rooms[currentRoom] and len(move)>1 and move[1] in rooms[currentRoom]['item'].values(): #added to fix bug in original if a noun is not given
       #add the item to their inventory
-      if(move[1].get('item').get('inventory')):  #item is an inventory item
-        addToInventory(move[1].get('item').get('inventory'))
-      elif(move[1].get('item').get('trap')):  #item is a trap
-        print(f"You were killed by {move[1].get('item').get('trap')}!!!")
+      # this if here needs to check current room's item's key to see if it matches "inventory"
+      if(rooms[currentRoom]['item'].get('inventory')):  #item is an inventory item
+        addToInventory(rooms[currentRoom]['item'].get('inventory'))
+      elif(rooms[currentRoom]['item'].get('trap')):  #item is a trap
+        print(f"You were killed by {ooms[currentRoom]['item']['trap']}!!!")
         exit(0)
     #otherwise, if the item isn't there to get
     else:
